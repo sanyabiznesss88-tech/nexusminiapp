@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Nexus Business</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --bg: #0b0f17;
+  --surface: #131a26;
+  --surface-2: #1a2333;
+  --line: #222c3d;
+  --fg: #eef2f8;
+  --muted: #8e9bb0;
+  --accent: #6f8bff;
+  --accent-2: #b07bff;
+  --ok: #34d399;
+  --gold: #f5b84b;
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(1100px 480px at 90% -10%, rgba(111,139,255,.18), transparent 60%),
+    radial-gradient(900px 400px at -10% 10%, rgba(176,123,255,.14), transparent 60%),
+    var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 var(--font);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2 { margin: 0; text-wrap: balance; }
+h2 { font-size: 15px; font-weight: 700; letter-spacing: .02em; margin: 26px 2px 10px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* шапка */
+.top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.logo {
+  width: 54px; height: 54px; border-radius: 17px; flex: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: grid; place-items: center;
+  box-shadow: 0 10px 30px -8px rgba(111,139,255,.6);
+}
+.logo svg { width: 28px; height: 28px; fill: #fff; }
+.top h1 { font-size: 20px; font-weight: 700; }
+.top p { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+/* премиум */
+.premium {
+  background: linear-gradient(160deg, rgba(245,184,75,.14), var(--surface) 55%);
+  border-color: rgba(245,184,75,.35);
+}
+.premium-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.premium-head b { font-size: 18px; font-weight: 700; }
+.price { font-size: 22px; font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; }
+.perks { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.perks li { display: flex; gap: 10px; align-items: flex-start; }
+.perks li::before { content: "✓"; color: var(--ok); font-weight: 700; flex: none; }
+
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 14px;
+  font: inherit; font-weight: 700; color: #1a1205; text-decoration: none; cursor: pointer;
+  background: linear-gradient(90deg, #ffd27a, var(--gold));
+  border: 0; border-radius: 12px; padding: 13px 16px;
+  box-shadow: 0 8px 24px -10px rgba(245,184,75,.7);
+  transition: transform .1s ease;
+}
+.btn:active { transform: scale(.98); }
+.btn.ghost {
+  color: var(--fg); background: var(--surface-2);
+  border: 1px solid var(--line); box-shadow: none;
+}
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* поиск команд */
+.search {
+  width: 100%; font: inherit; color: var(--fg);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 11px 14px; margin-bottom: 10px; outline: none;
+}
+.search:focus { border-color: var(--accent); }
+.tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+.tab {
+  font: inherit; font-size: 13px; color: var(--muted); cursor: pointer;
+  background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+}
+.tab[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); background: rgba(111,139,255,.12); }
+
+.cmds { display: grid; gap: 8px; }
+.cmd {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; min-width: 0;
+}
+.cmd code {
+  font: 600 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--accent); background: rgba(111,139,255,.1);
+  padding: 2px 7px; border-radius: 6px; word-break: break-word;
+}
+.cmd p { color: var(--muted); font-size: 13px; margin-top: 6px; }
+.cmd .pro {
+  font-size: 11px; font-weight: 700; color: var(--gold);
+  border: 1px solid rgba(245,184,75,.4); border-radius: 6px; padding: 0 5px; margin-left: 6px;
+}
+.hidden { display: none !important; }
+.empty { color: var(--muted); text-align: center; padding: 18px 0; }
+
+/* создатель */
+.person { display: flex; align-items: center; gap: 12px; }
+.avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex: none;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  display: grid; place-items: center; font-weight: 800;
+}
+.person b { display: block; font-weight: 700; }
+.person span { color: var(--muted); font-size: 13px; }
+.badge {
+  margin-left: auto; font-size: 11px; font-weight: 700; color: var(--ok);
+  background: rgba(52,211,153,.12); border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+}
+
+.footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 24px; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+  background: var(--fg); color: #0b0f17; font-weight: 600; font-size: 13px;
+  padding: 10px 16px; border-radius: 999px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  transition: opacity .2s ease, transform .25s ease;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+  </div>
+  <div>
+    <h1>Nexus Business</h1>
+    <p id="who">Бот для бизнес-чатов Telegram</p>
+  </div>
+</header>
+
+<section class="card premium" aria-labelledby="pr">
+  <div class="premium-head">
+    <b id="pr">💎 Premium</b>
+    <span class="price">100 ⭐</span>
+  </div>
+  <p class="muted" style="margin-top:6px">Открывает все премиум-команды и функции бота.</p>
+  <ul class="perks">
+    <li>Spam до 300 сообщений и настраиваемая пауза</li>
+    <li>Цитаты, клонирование сообщений, эффект matrix</li>
+    <li>Ключевые слова: ответ на слово в чате</li>
+    <li>Статистика, стрик переписки, анализ чатов и топ</li>
+    <li>Отложенные сообщения и приветствие новым собеседникам</li>
+    <li>ИИ-помощник, напоминания и заметки по чату</li>
+    <li>Рабочие часы и порог автоответа</li>
+  </ul>
+  <button class="btn" id="buy" type="button">Купить Premium в боте</button>
+  <p class="muted" style="font-size:12px;margin-top:10px">Откроется чат с ботом. Нажми «⚙️ Функционал» → «💎 Premium» и оплати Stars.</p>
+</section>
+
+<h2>Команды</h2>
+<input class="search" id="q" type="search" placeholder="Поиск команды, например .spam" aria-label="Поиск команды">
+<div class="tabs" role="group" aria-label="Фильтр">
+  <button class="tab" data-f="all" aria-pressed="true">Все</button>
+  <button class="tab" data-f="free" aria-pressed="false">Бесплатно</button>
+  <button class="tab" data-f="pro" aria-pressed="false">Premium</button>
+</div>
+<div class="cmds" id="list"></div>
+<p class="empty hidden" id="none">Ничего не найдено</p>
+
+<h2>Создатель и поддержка</h2>
+<section class="card">
+  <div class="person">
+    <div class="avatar" aria-hidden="true">D</div>
+    <div>
+      <b>@dexuvu</b>
+      <span>Создатель и администратор бота</span>
+    </div>
+    <span class="badge">admin</span>
+  </div>
+  <button class="btn ghost" id="support" type="button">💬 Написать в поддержку</button>
+</section>
+
+<p class="footer">Цифры и статусы в этом окне не персональные.</p>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const BOT_LINK = "https://t.me/Nexusmessagersbot";
+  const SUPPORT_LINK = "https://t.me/dexuvu";
+
+  // [команда, описание, premium]
+  const COMMANDS = [
+    [".mute", "Удалять входящие сообщения собеседника в этом чате и показать кнопку «Размут»", false],
+    [".unmute", "Снять мут с этого чата", false],
+    [".flip текст", "Переворачивает текст задом наперёд", false],
+    [".nospace текст", "Убирает все пробелы", false],
+    [".bubble текст", "Буквы в кружочках", false],
+    [".zalgo текст", "Глитч-текст", false],
+    [".spoiler текст", "Текст под спойлером Telegram", false],
+    [".coin", "Подбрасывает монетку: орёл или решка", false],
+    [".8ball вопрос", "Магический шар ответит на вопрос", false],
+    [".rps камень|ножницы|бумага", "Игра камень, ножницы, бумага", false],
+    [".print текст", "Эффект набора текста по буквам", false],
+    [".haha", "Серия сообщений со смехом", false],
+    [".tpl имя", "Отправить сохранённый шаблон; {имя} заменится на имя собеседника", false],
+    [".tpl add имя = текст", "Сохранить шаблон; .tpl del имя и .tpl list тоже работают", false],
+    [".guess", "Угадай число от 1 до 100; собеседник пишет числа в чат. .guess stop — закончить", false],
+    [".dice", "Кубик", false],
+    [".slot", "Слот-машина", false],
+    [".duel", "Дуэль с ботом", false],
+    [".time", "Текущее время", false],
+    [".rand 100", "Случайное число (или .rand 5 50 — в диапазоне)", false],
+    [".choose a|b|c", "Выбрать один вариант из списка", false],
+    [".calc (2+3)*4", "Калькулятор: сложение, вычитание, умножение, деление, степень", false],
+    [".caps текст", "Текст ЗАГЛАВНЫМИ", false],
+    [".translit текст", "Перевод кириллицы в латиницу", false],
+    [".spam N текст", "Серия сообщений, до 300 за раз", true],
+    [".quote", "Ответь реплаем на сообщение: бот сделает цитату", true],
+    [".clone", "Дублировать входящие сообщения собеседника, вкл/выкл", true],
+    [".matrix текст", "Анимация хакерской дешифровки", true],
+    [".streak", "Сколько дней подряд вы переписываетесь", true],
+    [".stats", "Статистика за сегодня и за неделю", true],
+    [".analyze", "Анализ чата: входящие, твои ответы, время ответа, частые слова", true],
+    [".top", "Топ чатов по количеству входящих", true],
+    [".digest on/off", "Сводка каждый вечер в 22:00", true],
+    [".ai вопрос", "Ответ ИИ придёт тебе в личку", true],
+    [".nomute", "Защита: собеседник не сможет замутить тебя, вкл/выкл", true],
+    [".kw add слово = ответ", "Автоответ на ключевое слово; .kw del и .kw list тоже работают", true],
+    [".hours 9-18", "Рабочие часы: автоответ только вне них. .hours off — выключить", true],
+    [".away 10", "Порог: автоответ включается, если ты 10 мин. не писал в чатах", true],
+    [".later 30m текст", "Отправить сообщение в этот чат через 30 минут", true],
+    [".greet текст", "Приветствие новому собеседнику при первом сообщении. .greet off — выключить", true],
+    [".remind 30m текст", "Напоминание тебе в личку", true],
+    [".note текст", "Заметка по этому чату, видна только тебе. Просто .note — посмотреть", true],
+  ];
+
+  const list = document.getElementById("list");
+  const none = document.getElementById("none");
+  const q = document.getElementById("q");
+  let filter = "all";
+
+  function esc(s) {
+    return s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  }
+
+  function render() {
+    const term = q.value.trim().toLowerCase();
+    const items = COMMANDS.filter(([cmd, desc, pro]) => {
+      if (filter === "free" && pro) return false;
+      if (filter === "pro" && !pro) return false;
+      return !term || cmd.toLowerCase().includes(term) || desc.toLowerCase().includes(term);
+    });
+    list.innerHTML = items.map(([cmd, desc, pro]) =>
+      `<div class="cmd"><code>${esc(cmd)}</code>${pro ? '<span class="pro">PRO</span>' : ""}<p>${esc(desc)}</p></div>`
+    ).join("");
+    none.classList.toggle("hidden", items.length > 0);
+  }
+
+  document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+    filter = btn.dataset.f;
+    document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-pressed", String(b === btn)));
+    render();
+  }));
+  q.addEventListener("input", render);
+  render();
+
+  const tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    const u = tg.initDataUnsafe && tg.initDataUnsafe.user;
+    if (u && u.first_name) document.getElementById("who").textContent = "Привет, " + u.first_name + " 👋";
+  }
+
+  function open(link) {
+    if (tg && tg.openTelegramLink) tg.openTelegramLink(link);
+    else window.open(link, "_blank");
+  }
+
+  document.getElementById("buy").addEventListener("click", () => open(BOT_LINK));
+  document.getElementById("support").addEventListener("click", () => open(SUPPORT_LINK));
+
+  const toast = document.getElementById("toast");
+  let timer;
+  function say(text) {
+    toast.textContent = text;
+    toast.classList.add("show");
+    clearTimeout(timer);
+    timer = setTimeout(() => toast.classList.remove("show"), 1800);
+  }
+</script>
+</body>
+</html>
